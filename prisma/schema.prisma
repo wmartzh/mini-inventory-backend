@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["mongoDb"]
+}
+
+enum MeasureUnitType {
+  kg
+  ml
+  mg
+  lt
+  gr
+  p
+  gl
+  unit
+  undefined
+
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  username String
+  email    String
+  password String
+  role     Role   @default(USER)
+}
+
+model Product {
+  id          String          @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  price       Decimal
+  measureUnit MeasureUnitType @default(unit)
+  stock       Decimal         @default(0.00)
+
+  Entry  Entry[]
+  Output Output[]
+}
+
+model Entry {
+  id        String   @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime
+  quantity  Decimal
+  detail    String
+}
+
+model Output {
+  id        String   @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime
+  quantity  Decimal
+  detail    String
+}
